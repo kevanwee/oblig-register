@@ -43,7 +43,7 @@ that someone keeps. This is the spreadsheet, as data, with the arithmetic done.
 |---|---|
 | `schema/register.schema.json` | JSON Schema for a register, generated from the pydantic model. |
 | `obligreg validate` | Duplicate ids, obligors that are not parties, dangling anchors, missing quotations, malformed triggers. |
-| `obligreg resolve` | Every deadline with a line-by-line trace. Relative triggers chain (`data-deletion` anchored on `data-return` anchored on `event:termination`). Business days via [sg-deadline](../sg-deadline). |
+| `obligreg resolve` | Every deadline with a line-by-line trace. Relative triggers chain (`data-deletion` anchored on `data-return` anchored on `event:termination`). Business days via [sg-deadline](https://github.com/kevanwee/sg-deadline). |
 | `obligreg render` | Markdown register, dated items first, undated event-triggered items listed separately, notice clause summarised. |
 | `obligreg ics` | RFC 5545 calendar: one all-day event per obligation, `RRULE` for recurrences, `VALARM` at `lead_days`. Stable UIDs so re-importing updates rather than duplicates. |
 | `obligreg upcoming` | What is due in the next N days from a date. |
@@ -102,7 +102,7 @@ resolution trace, so the reminder is self-explaining when it fires in two years'
 
 ## Related projects
 
-[sg-deadline](../sg-deadline) for calendars and deemed receipt; [playbook-as-code](../playbook-as-code)
+[sg-deadline](https://github.com/kevanwee/sg-deadline) for calendars and deemed receipt; [playbook-as-code](https://github.com/kevanwee/playbook-as-code)
 for the pre-signature review that precedes this.
 
 ## License
