@@ -1,0 +1,441 @@
+{
+  "$defs": {
+    "Category": {
+      "enum": [
+        "payment",
+        "delivery",
+        "notice",
+        "reporting",
+        "renewal",
+        "termination",
+        "insurance",
+        "compliance",
+        "confidentiality",
+        "data",
+        "ip",
+        "other"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "Freq": {
+      "enum": [
+        "weekly",
+        "monthly",
+        "quarterly",
+        "annual"
+      ],
+      "title": "Freq",
+      "type": "string"
+    },
+    "NoticeClause": {
+      "properties": {
+        "clause_ref": {
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "verbatim": {
+          "minLength": 15,
+          "title": "Verbatim",
+          "type": "string"
+        },
+        "addresses": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "party -> address",
+          "title": "Addresses",
+          "type": "object"
+        },
+        "methods": {
+          "items": {
+            "$ref": "#/$defs/NoticeMethod"
+          },
+          "title": "Methods",
+          "type": "array"
+        }
+      },
+      "required": [
+        "clause_ref",
+        "verbatim"
+      ],
+      "title": "NoticeClause",
+      "type": "object"
+    },
+    "NoticeMethod": {
+      "description": "Parameters for sg-deadline's deemed_receipt tool, lifted from the notice clause.",
+      "properties": {
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "offset_days": {
+          "default": 0,
+          "title": "Offset Days",
+          "type": "integer"
+        },
+        "business_days": {
+          "default": false,
+          "title": "Business Days",
+          "type": "boolean"
+        },
+        "cutoff": {
+          "anyOf": [
+            {
+              "format": "time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cutoff"
+        },
+        "non_working_day_defers": {
+          "default": false,
+          "title": "Non Working Day Defers",
+          "type": "boolean"
+        },
+        "roll_to_working_day": {
+          "default": false,
+          "title": "Roll To Working Day",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "method"
+      ],
+      "title": "NoticeMethod",
+      "type": "object"
+    },
+    "Obligation": {
+      "properties": {
+        "id": {
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "obligor": {
+          "title": "Obligor",
+          "type": "string"
+        },
+        "obligee": {
+          "title": "Obligee",
+          "type": "string"
+        },
+        "category": {
+          "$ref": "#/$defs/Category",
+          "default": "other"
+        },
+        "description": {
+          "minLength": 8,
+          "title": "Description",
+          "type": "string"
+        },
+        "clause_ref": {
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "verbatim": {
+          "description": "the operative words, quoted exactly",
+          "minLength": 15,
+          "title": "Verbatim",
+          "type": "string"
+        },
+        "trigger": {
+          "$ref": "#/$defs/Trigger"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "only if ...",
+          "title": "Condition"
+        },
+        "consequence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "what happens on breach/lapse",
+          "title": "Consequence"
+        },
+        "lead_days": {
+          "default": 14,
+          "description": "reminder lead time for the calendar",
+          "minimum": 0,
+          "title": "Lead Days",
+          "type": "integer"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "obligor",
+        "obligee",
+        "description",
+        "clause_ref",
+        "verbatim",
+        "trigger"
+      ],
+      "title": "Obligation",
+      "type": "object"
+    },
+    "Recurrence": {
+      "properties": {
+        "freq": {
+          "$ref": "#/$defs/Freq"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "defaults to effective_date",
+          "title": "Start"
+        },
+        "until": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "defaults to expiry",
+          "title": "Until"
+        },
+        "day_of_month": {
+          "anyOf": [
+            {
+              "maximum": 28,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Day Of Month"
+        }
+      },
+      "required": [
+        "freq"
+      ],
+      "title": "Recurrence",
+      "type": "object"
+    },
+    "Relative": {
+      "description": "'within 30 days after X' / 'not less than 60 days before Y'.",
+      "properties": {
+        "anchor": {
+          "description": "'effective_date' | 'expiry' | an obligation id | 'event:<name>'",
+          "title": "Anchor",
+          "type": "string"
+        },
+        "days": {
+          "default": 0,
+          "title": "Days",
+          "type": "integer"
+        },
+        "business_days": {
+          "default": 0,
+          "title": "Business Days",
+          "type": "integer"
+        },
+        "months": {
+          "default": 0,
+          "title": "Months",
+          "type": "integer"
+        },
+        "direction": {
+          "default": "after",
+          "pattern": "^(after|before)$",
+          "title": "Direction",
+          "type": "string"
+        }
+      },
+      "required": [
+        "anchor"
+      ],
+      "title": "Relative",
+      "type": "object"
+    },
+    "Trigger": {
+      "properties": {
+        "kind": {
+          "pattern": "^(fixed|relative|event|recurring)$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date"
+        },
+        "relative": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Relative"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "event": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "plain description of the event",
+          "title": "Event"
+        },
+        "recurrence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Recurrence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Trigger",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "contract": {
+      "title": "Contract",
+      "type": "string"
+    },
+    "parties": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 2,
+      "title": "Parties",
+      "type": "array"
+    },
+    "effective_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Date"
+    },
+    "expiry": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expiry"
+    },
+    "governing_law": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Governing Law"
+    },
+    "events": {
+      "additionalProperties": {
+        "format": "date",
+        "type": "string"
+      },
+      "description": "known dates for event triggers, e.g. termination",
+      "title": "Events",
+      "type": "object"
+    },
+    "notice_clause": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NoticeClause"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "obligations": {
+      "items": {
+        "$ref": "#/$defs/Obligation"
+      },
+      "title": "Obligations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract",
+    "parties",
+    "obligations"
+  ],
+  "title": "Register",
+  "type": "object"
+}

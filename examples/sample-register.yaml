@@ -1,0 +1,129 @@
+# Obligations extracted from a (fictional) 36-month SaaS agreement.
+# Every entry quotes the operative words; that is what makes the register auditable.
+
+contract: Acme-Beta MSA 2026
+parties: [Acme Cloud Pte Ltd, Beta Manufacturing Pte Ltd]
+effective_date: 2026-03-01
+expiry: 2029-02-28
+governing_law: Singapore
+events:
+  # fill these in when they happen; obligations anchored on them resolve automatically
+  # termination: 2027-06-30
+
+notice_clause:
+  clause_ref: "21"
+  verbatim: >
+    Any notice shall be in writing and delivered by hand, prepaid registered post or email
+    to the address set out below. A notice is deemed received: if by hand, on delivery; if
+    by registered post, three (3) days after posting; if by email, on the next Business
+    Day after transmission, or if transmitted after 5.00 pm, on the second Business Day.
+  addresses:
+    Acme Cloud Pte Ltd: "legal@acme.example, 1 Robinson Road #10-01 Singapore 048542"
+    Beta Manufacturing Pte Ltd: "contracts@beta.example, 8 Tuas Avenue 3 Singapore 639412"
+  methods:
+    - { method: hand, offset_days: 0 }
+    - { method: post, offset_days: 3 }
+    - { method: email, offset_days: 1, business_days: true, cutoff: "17:00" }
+
+obligations:
+  - id: annual-fee
+    obligor: Beta Manufacturing Pte Ltd
+    obligee: Acme Cloud Pte Ltd
+    category: payment
+    description: Pay annual subscription fee in advance
+    clause_ref: "3.1"
+    verbatim: "The Supplier shall invoice the Customer annually in advance. Invoices are payable within sixty (60) days of receipt."
+    trigger:
+      kind: recurring
+      recurrence: { freq: annual }
+    consequence: Interest at 8% p.a. (cl 3.2); suspension right after 60 days' arrears (cl 3.3)
+    lead_days: 30
+
+  - id: sla-report
+    obligor: Acme Cloud Pte Ltd
+    obligee: Beta Manufacturing Pte Ltd
+    category: reporting
+    description: Deliver monthly service-level report
+    clause_ref: "4.3"
+    verbatim: "The Supplier shall provide the Customer with a report of the Service Levels achieved within five (5) Business Days after the end of each calendar month."
+    trigger:
+      kind: recurring
+      recurrence: { freq: monthly, day_of_month: 7 }
+    notes:
+      - "Register date is an approximation of '5 Business Days after month end'; the exact date shifts with holidays."
+    lead_days: 3
+
+  - id: insurance-certificate
+    obligor: Acme Cloud Pte Ltd
+    obligee: Beta Manufacturing Pte Ltd
+    category: insurance
+    description: Deliver certificate of insurance
+    clause_ref: "11.2"
+    verbatim: "The Supplier shall deliver to the Customer a certificate evidencing the insurances required by clause 11.1 within fourteen (14) Business Days after the Effective Date."
+    trigger:
+      kind: relative
+      relative: { anchor: effective_date, business_days: 14, direction: after }
+    consequence: Material breach (cl 11.3)
+
+  - id: non-renewal-notice
+    obligor: Beta Manufacturing Pte Ltd
+    obligee: Acme Cloud Pte Ltd
+    category: renewal
+    description: Last day to give notice of non-renewal
+    clause_ref: "8.3"
+    verbatim: "This Agreement shall renew automatically for successive periods of twelve (12) months unless either party gives written notice of non-renewal not less than ninety (90) days before the expiry of the then-current term."
+    trigger:
+      kind: relative
+      relative: { anchor: expiry, days: 90, direction: before }
+    consequence: Automatic renewal for 12 months
+    lead_days: 45
+
+  - id: data-return
+    obligor: Acme Cloud Pte Ltd
+    obligee: Beta Manufacturing Pte Ltd
+    category: data
+    description: Make Customer Data available for export
+    clause_ref: "9.4"
+    verbatim: "For a period of thirty (30) days following termination or expiry, the Supplier shall make the Customer Data available for retrieval in a machine-readable format."
+    trigger:
+      kind: relative
+      relative: { anchor: event:termination, days: 30, direction: after }
+    notes:
+      - "Anchored on termination; set events.termination when it occurs. Also runs from expiry (create a second entry if needed)."
+
+  - id: data-deletion
+    obligor: Acme Cloud Pte Ltd
+    obligee: Beta Manufacturing Pte Ltd
+    category: data
+    description: Delete Customer Data and certify deletion
+    clause_ref: "9.5"
+    verbatim: "Within thirty (30) days after the end of the retrieval period, the Supplier shall securely delete all Customer Data and certify such deletion in writing."
+    trigger:
+      kind: relative
+      relative: { anchor: data-return, days: 30, direction: after }
+
+  - id: price-review
+    obligor: Acme Cloud Pte Ltd
+    obligee: Beta Manufacturing Pte Ltd
+    category: payment
+    description: Notify any renewal price increase
+    clause_ref: "3.4"
+    verbatim: "The Supplier may increase the Fees on renewal by giving the Customer not less than one hundred and twenty (120) days' written notice before the expiry of the then-current term."
+    trigger:
+      kind: relative
+      relative: { anchor: expiry, days: 120, direction: before }
+    condition: Only if Supplier wishes to increase fees
+    lead_days: 30
+
+  - id: breach-notification
+    obligor: Acme Cloud Pte Ltd
+    obligee: Beta Manufacturing Pte Ltd
+    category: data
+    description: Notify data breach
+    clause_ref: "5.3"
+    verbatim: "The Supplier shall notify the Customer within forty-eight (48) hours of confirming any unauthorised access to Personal Data."
+    trigger:
+      kind: event
+      event: data-breach-confirmed
+    notes:
+      - "48-hour clock; when the event is dated, treat the deadline as the second day."
