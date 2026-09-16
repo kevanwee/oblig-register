@@ -38,9 +38,9 @@ class Relative(BaseModel):
     anchor: str = Field(
         description="'effective_date' | 'expiry' | an obligation id | 'event:<name>'"
     )
-    days: int = 0
-    business_days: int = 0
-    months: int = 0
+    days: int = Field(default=0, ge=0)
+    business_days: int = Field(default=0, ge=0)
+    months: int = Field(default=0, ge=0)
     direction: str = Field(default="after", pattern="^(after|before)$")
 
     @model_validator(mode="after")
@@ -70,6 +70,9 @@ class Trigger(BaseModel):
                 "recurring": "recurrence"}[self.kind]
         if getattr(self, need) is None:
             raise ValueError(f"trigger kind {self.kind!r} requires `{need}`")
+        if any(getattr(self, name) is not None for name in
+               {"date", "relative", "event", "recurrence"} - {need}):
+            raise ValueError("trigger contains fields for another trigger kind")
         return self
 
 
@@ -133,6 +136,8 @@ class Register(BaseModel):
         for o in self.obligations:
             if o.obligor not in self.parties:
                 raise ValueError(f"{o.id}: obligor {o.obligor!r} is not a party")
+            if o.obligee not in self.parties:
+                raise ValueError(f"{o.id}: obligee {o.obligee!r} is not a party")
             rel = o.trigger.relative
             if rel and rel.anchor not in ("effective_date", "expiry") \
                     and not rel.anchor.startswith("event:") and rel.anchor not in ids:

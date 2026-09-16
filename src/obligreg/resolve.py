@@ -108,11 +108,16 @@ def _resolve_one(reg: Register, o: Obligation, done: dict[str, Resolved],
             start += relativedelta(months=1)
     occ = []
     cur = start
+    index = 0
     while cur <= until:
         occ.append(cur)
-        cur += _STEP[rc.freq]
+        index += 1
+        cur = start + _STEP[rc.freq] * index
+        if index > 10_000:
+            raise ValueError("recurrence exceeds 10,000 occurrences; shorten the horizon")
     trace.append(f"{rc.freq.value} from {start} until {until}: {len(occ)} occurrence(s)")
-    return Resolved(o, occ[0] if occ else None, occurrences=occ, trace=trace)
+    return Resolved(o, occ[0] if occ else None, occurrences=occ, trace=trace,
+                    unresolved_reason=None if occ else "no occurrences in the selected interval")
 
 
 def resolve(reg: Register, cal: WorkingDayCalendar | None = None,

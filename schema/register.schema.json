@@ -263,16 +263,19 @@
         },
         "days": {
           "default": 0,
+          "minimum": 0,
           "title": "Days",
           "type": "integer"
         },
         "business_days": {
           "default": 0,
+          "minimum": 0,
           "title": "Business Days",
           "type": "integer"
         },
         "months": {
           "default": 0,
+          "minimum": 0,
           "title": "Months",
           "type": "integer"
         },

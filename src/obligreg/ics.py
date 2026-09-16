@@ -14,6 +14,7 @@ _RRULE = {Freq.WEEKLY: "FREQ=WEEKLY", Freq.MONTHLY: "FREQ=MONTHLY",
 
 
 def _esc(s: str) -> str:
+    s = s.replace("\r\n", "\n").replace("\r", "\n")
     return s.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
 
@@ -67,7 +68,10 @@ def to_ics(resolved: list[Resolved], reg: Register, *,
         ]
         if r.occurrences and o.trigger.recurrence:
             rc = o.trigger.recurrence
-            ev.append(f"RRULE:{_RRULE[rc.freq]};UNTIL={_d(r.occurrences[-1])}")
+            if start.day <= 28:
+                ev.append(f"RRULE:{_RRULE[rc.freq]};UNTIL={_d(r.occurrences[-1])}")
+            elif len(r.occurrences) > 1:
+                ev.append("RDATE;VALUE=DATE:" + ",".join(_d(d) for d in r.occurrences[1:]))
         if o.lead_days:
             ev += ["BEGIN:VALARM", "ACTION:DISPLAY",
                    f"DESCRIPTION:{_esc(o.description)}",
