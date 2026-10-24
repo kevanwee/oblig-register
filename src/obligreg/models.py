@@ -5,9 +5,10 @@ from __future__ import annotations
 import datetime as dt
 from enum import StrEnum
 from pathlib import Path
+from typing import Literal
 
 import yaml
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class Category(StrEnum):
@@ -106,7 +107,35 @@ class NoticeClause(BaseModel):
     methods: list[NoticeMethod] = Field(default_factory=list)
 
 
+class BusinessDayRule(BaseModel):
+    """An explicitly reviewed reading of the contract's own definition."""
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["jurisdiction", "explicit", "unresolved"]
+    jurisdiction: str | None = None
+    weekend_days: list[int] = Field(default_factory=lambda: [5, 6])
+    excluded_dates: list[dt.date] = Field(default_factory=list)
+    clause_ref: str
+    verbatim: str = Field(min_length=15)
+    notes: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _calendar_shape(self):
+        if len(set(self.weekend_days)) != len(self.weekend_days) or any(
+            day not in range(7) for day in self.weekend_days
+        ) or len(self.weekend_days) == 7:
+            raise ValueError("weekend_days must be distinct weekdays and leave a working day")
+        if self.kind == "jurisdiction" and not self.jurisdiction:
+            raise ValueError("jurisdiction calendar needs its jurisdiction")
+        if self.kind == "explicit" and self.jurisdiction:
+            raise ValueError("explicit dates/weekends must not imply a jurisdiction "
+                             "holiday calendar")
+        if self.kind == "unresolved" and not self.notes:
+            raise ValueError("unresolved Business Day definition needs an explanation")
+        return self
+
+
 class Register(BaseModel):
+    schema_version: Literal["1.1"] = "1.1"
     contract: str
     parties: list[str] = Field(min_length=2)
     effective_date: dt.date | None = None
@@ -116,6 +145,7 @@ class Register(BaseModel):
         default_factory=dict, description="known dates for event triggers, e.g. termination"
     )
     notice_clause: NoticeClause | None = None
+    business_day_rule: BusinessDayRule | None = None
     obligations: list[Obligation]
 
     @field_validator("events", mode="before")

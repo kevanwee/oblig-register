@@ -1,0 +1,2 @@
+The expiry date is changed to 31 December 2027.
+Customer must give non-renewal notice sixty days before expiry.

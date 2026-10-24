@@ -126,10 +126,8 @@ def test_cli(capsys):
     assert "BEGIN:VEVENT" in capsys.readouterr().out
 
 
-sg = pytest.importorskip("sg_deadline", reason="optional integration with sg-deadline")
-
-
 def test_with_sg_deadline_calendar(reg):
+    sg = pytest.importorskip("sg_deadline", reason="optional integration with sg-deadline")
     cal = sg.load_calendar("SG")
     res = {r.obligation.id: r for r in resolve(reg, cal)}
     # 14 SG working days after Sun 1 Mar 2026: no public holidays in that window -> 19 Mar

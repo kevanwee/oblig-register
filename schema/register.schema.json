@@ -1,5 +1,70 @@
 {
   "$defs": {
+    "BusinessDayRule": {
+      "additionalProperties": false,
+      "description": "An explicitly reviewed reading of the contract's own definition.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "jurisdiction",
+            "explicit",
+            "unresolved"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "jurisdiction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Jurisdiction"
+        },
+        "weekend_days": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Weekend Days",
+          "type": "array"
+        },
+        "excluded_dates": {
+          "items": {
+            "format": "date",
+            "type": "string"
+          },
+          "title": "Excluded Dates",
+          "type": "array"
+        },
+        "clause_ref": {
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "verbatim": {
+          "minLength": 15,
+          "title": "Verbatim",
+          "type": "string"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "clause_ref",
+        "verbatim"
+      ],
+      "title": "BusinessDayRule",
+      "type": "object"
+    },
     "Category": {
       "enum": [
         "payment",
@@ -353,6 +418,12 @@
     }
   },
   "properties": {
+    "schema_version": {
+      "const": "1.1",
+      "default": "1.1",
+      "title": "Schema Version",
+      "type": "string"
+    },
     "contract": {
       "title": "Contract",
       "type": "string"
@@ -416,6 +487,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/NoticeClause"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "business_day_rule": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BusinessDayRule"
         },
         {
           "type": "null"

@@ -1,0 +1,1 @@
+Business Day means Monday to Friday, including public holidays, but excludes 7 January 2027.

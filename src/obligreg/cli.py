@@ -85,6 +85,44 @@ def cmd_upcoming(a):
     return 0
 
 
+def cmd_amend_build(a):
+    from .amendment_package import build, inputs
+    from .amendments import analyze
+
+    snapshot = None
+    if a.jurisdiction:
+        if a.jurisdiction != "SG":
+            raise ValueError("Automatic calendar preparation currently supports SG only")
+        try:
+            from sg_deadline.calendar_store import CalendarStore
+            from sg_deadline.preparation import prepare
+        except ImportError as exc:
+            raise ValueError("Install sg-deadline 0.2+ for official calendar preparation") from exc
+        base, plan, documents, hashes = inputs(a.base, a.plan)
+        try:
+            prepared = prepare(
+                lambda cal: analyze(base, plan, documents, cal, horizon=a.horizon),
+                store=CalendarStore(a.calendar_cache) if a.calendar_cache else CalendarStore(),
+                offline=a.offline, identity=hashes)
+        except LookupError as exc:
+            raise ValueError(f"Calendar preparation failed: {exc}. "
+                             "No review was published.") from exc
+        snapshot = {"jurisdiction": "SG", "weekend": list(prepared.calendar.weekend),
+                    "years": prepared.receipt["calendars"], "warnings": prepared.warnings}
+    package = build(a.base, a.plan, a.out, calendar=snapshot, horizon=a.horizon)
+    print(f"Review {package['digest']}\nOpen {a.out / 'review.html'}")
+    print(f"{len(package['payload']['analysis']['blockers'])} approval blocker(s)")
+    return 0
+
+
+def cmd_amend_apply(a):
+    from .amendment_package import apply
+
+    outcome = apply(a.review, a.base, a.plan, a.decision, a.out)
+    print(f"Recorded {outcome}: {a.out}")
+    return 0
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="obligreg", description="Contract obligations as data.")
     p.add_argument("--jurisdiction", "-j", help="e.g. SG; enables business-day arithmetic")
@@ -119,8 +157,29 @@ def main(argv=None) -> int:
     u.add_argument("--days", type=int, default=90)
     u.set_defaults(fn=cmd_upcoming)
 
+    amend = sub.add_parser("amend", help="source-backed amendment impact review")
+    actions = amend.add_subparsers(dest="action", required=True)
+    build = actions.add_parser("build", help="freeze inputs and create a local review")
+    build.add_argument("--base", type=Path, required=True)
+    build.add_argument("--plan", type=Path, required=True)
+    build.add_argument("--out", type=Path, required=True)
+    build.add_argument("--calendar-cache", type=Path)
+    build.add_argument("--offline", action="store_true")
+    build.set_defaults(fn=cmd_amend_build)
+    apply = actions.add_parser("apply", help="validate the decision and publish a new version")
+    apply.add_argument("--base", type=Path, required=True)
+    apply.add_argument("--plan", type=Path, required=True)
+    apply.add_argument("--review", type=Path, required=True)
+    apply.add_argument("--decision", type=Path, required=True)
+    apply.add_argument("--out", type=Path, required=True)
+    apply.set_defaults(fn=cmd_amend_apply)
+
     a = p.parse_args(argv)
-    return a.fn(a)
+    try:
+        return a.fn(a)
+    except (ValueError, OSError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

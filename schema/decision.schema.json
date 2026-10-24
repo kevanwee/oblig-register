@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "package_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Package Digest",
+      "type": "string"
+    },
+    "outcome": {
+      "enum": [
+        "approved",
+        "rejected"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "actor": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Actor",
+      "type": "string"
+    },
+    "evidence": {
+      "minLength": 8,
+      "pattern": "\\S",
+      "title": "Evidence",
+      "type": "string"
+    },
+    "reviewed_at": {
+      "format": "date-time",
+      "title": "Reviewed At",
+      "type": "string"
+    },
+    "changes": {
+      "additionalProperties": {
+        "enum": [
+          "accept",
+          "reject",
+          "defer"
+        ],
+        "type": "string"
+      },
+      "title": "Changes",
+      "type": "object"
+    },
+    "impacts_acknowledged": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Impacts Acknowledged",
+      "type": "array"
+    },
+    "synthetic": {
+      "default": false,
+      "title": "Synthetic",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "package_digest",
+    "outcome",
+    "actor",
+    "evidence",
+    "reviewed_at",
+    "changes",
+    "impacts_acknowledged"
+  ],
+  "title": "Decision",
+  "type": "object"
+}

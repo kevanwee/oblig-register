@@ -13,6 +13,7 @@ from typing import Protocol
 
 from dateutil.relativedelta import relativedelta
 
+from .calendars import contract_calendar
 from .models import Freq, Obligation, Register
 
 
@@ -87,7 +88,8 @@ def _resolve_one(reg: Register, o: Obligation, done: dict[str, Resolved],
             if cal is None:
                 return Resolved(o, None, trace=trace,
                                 unresolved_reason="business-day period but no working-day "
-                                                  "calendar supplied (install sg-deadline)")
+                                                  "calendar matching the contract "
+                                                  "definition supplied")
             d = cal.add_working_days(base, sign * rel.business_days)
             trace.append(f"{'+' if sign > 0 else '-'} {rel.business_days} business day(s) = {d}")
         return Resolved(o, d, trace=trace)
@@ -119,6 +121,7 @@ def resolve(reg: Register, cal: WorkingDayCalendar | None = None,
             *, horizon: date | None = None) -> list[Resolved]:
     """Resolve every obligation. Relative anchors to other obligations are resolved in
     dependency order (iteratively; cycles end up unresolved)."""
+    cal = contract_calendar(reg.business_day_rule, cal)
     done: dict[str, Resolved] = {}
     pending = list(reg.obligations)
     progress = True

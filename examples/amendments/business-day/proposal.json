@@ -1,0 +1,108 @@
+{
+  "schema_version": "1",
+  "title": "Service agreement — business-day amendment",
+  "as_of": "2027-01-06",
+  "effective_on": "2027-01-06",
+  "execution_status": "confirmed",
+  "effect_basis": "Synthetic scenario assumes execution and effectiveness on 6 January 2027.",
+  "sources": [
+    {
+      "id": "agreement",
+      "role": "agreement",
+      "path": "agreement.txt",
+      "sha256": "717302bd042d13616ae43d732bc33efcc28c421fa6d85db976cbd58849ec51f2"
+    },
+    {
+      "id": "amendment",
+      "role": "amendment",
+      "path": "amendment.txt",
+      "sha256": "f5aca64ceb05074e155312c4b4a7190e1ebdee262069f4508d26e6e15fbb8c0a"
+    }
+  ],
+  "baseline": {
+    "insurance": {
+      "document": "agreement",
+      "start": 0,
+      "end": 84,
+      "quote": "Supplier must provide insurance evidence two Business Days after the effective date.",
+      "locator": "agreement paragraph at character 0"
+    },
+    "followup": {
+      "document": "agreement",
+      "start": 85,
+      "end": 164,
+      "quote": "Customer must review insurance evidence three days after its delivery deadline.",
+      "locator": "agreement paragraph at character 85"
+    }
+  },
+  "baseline_notice": null,
+  "baseline_business_day_rule": {
+    "document": "agreement",
+    "start": 165,
+    "end": 228,
+    "quote": "Business Day means Monday to Friday, including public holidays.",
+    "locator": "agreement paragraph at character 165"
+  },
+  "sections": [
+    {
+      "id": "section-0",
+      "evidence": {
+        "document": "amendment",
+        "start": 0,
+        "end": 92,
+        "quote": "Business Day means Monday to Friday, including public holidays, but excludes 7 January 2027.",
+        "locator": "amendment paragraph at character 0"
+      },
+      "disposition": "change",
+      "changes": [
+        "change-business-day"
+      ],
+      "reason": "This paragraph supplies the proposed operative change."
+    }
+  ],
+  "changes": [
+    {
+      "id": "change-business-day",
+      "kind": "field",
+      "target": "business_day_rule",
+      "before": {
+        "kind": "explicit",
+        "jurisdiction": null,
+        "weekend_days": [
+          5,
+          6
+        ],
+        "excluded_dates": [],
+        "clause_ref": "definition",
+        "verbatim": "Business Day means Monday to Friday, including public holidays.",
+        "notes": []
+      },
+      "after": {
+        "kind": "explicit",
+        "jurisdiction": null,
+        "weekend_days": [
+          5,
+          6
+        ],
+        "excluded_dates": [
+          "2027-01-07"
+        ],
+        "clause_ref": "definition",
+        "verbatim": "Business Day means Monday to Friday, including public holidays, but excludes 7 January 2027.",
+        "notes": []
+      },
+      "rationale": "Apply the amended definition to all Business Day periods.",
+      "evidence": [
+        {
+          "document": "amendment",
+          "start": 0,
+          "end": 92,
+          "quote": "Business Day means Monday to Friday, including public holidays, but excludes 7 January 2027.",
+          "locator": "amendment paragraph at character 0"
+        }
+      ]
+    }
+  ],
+  "questions": [],
+  "synthetic": true
+}

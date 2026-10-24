@@ -1,0 +1,3 @@
+Customer must give non-renewal notice ninety days before expiry.
+Supplier must send an escalation fourteen days before the non-renewal notice deadline.
+Supplier must provide a report monthly from the effective date until expiry.

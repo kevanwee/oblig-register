@@ -1,6 +1,6 @@
 ---
 name: obligation-extraction
-description: Extract every dated or triggerable obligation from an executed contract into an oblig-register YAML file (schema in this repo), including the notice clause as deemed-receipt parameters. Then validate, resolve deadlines, and export a calendar. Use when someone asks "what do we have to do under this contract and when", "put this contract's dates in the calendar", or "build an obligations register".
+description: Extract dated or triggerable obligations from an executed contract, or review an amendment's impact on an existing obligations register. Preserve exact quotations, trace dependent dates, and publish evidence-linked updates only after review. Use for contract calendars, obligations registers, changed renewal or notice dates, and amended Business Day definitions.
 ---
 
 # obligation-extraction
@@ -8,6 +8,11 @@ description: Extract every dated or triggerable obligation from an executed cont
 You are reading an executed contract and producing a register of obligations that a
 person could be held to. The register is data (`schema/register.schema.json`); the
 calendar and the markdown come from it mechanically.
+
+For an **amendment to an existing register**, read
+[references/amendment-review.md](references/amendment-review.md) first. That mode preserves
+the old register, proposes source-backed changes and requires a decision before publication.
+Do not rerun initial extraction and overwrite the existing register.
 
 ## Workflow
 

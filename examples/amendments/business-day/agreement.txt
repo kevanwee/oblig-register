@@ -1,0 +1,3 @@
+Supplier must provide insurance evidence two Business Days after the effective date.
+Customer must review insurance evidence three days after its delivery deadline.
+Business Day means Monday to Friday, including public holidays.

@@ -2,7 +2,8 @@
 
 Turn an executed contract into a dated obligations register. A validated YAML schema for
 "who must do what, by when, or else", deadline resolution with a trace, `.ics` export with
-reminders, and a Claude skill for the extraction step.
+reminders, and a skill for the extraction step. Review later amendments against the
+existing register, trace affected dates and publish a new version after approval.
 
 ```yaml
 - id: non-renewal-notice
@@ -30,9 +31,9 @@ anchor expiry: 2029-02-28
 
 ## Why
 
-Contract analysers extract clauses. None of them produce the thing an in-house team
-actually needs after signing: a register of obligations with dates that lands in a
-calendar with lead-time reminders. The auto-renewal nobody noticed, the insurance
+After signing, an in-house team needs a maintained record of obligations, dates and
+reminders. Amendments can make that record stale even when the underlying document
+change looks small. The auto-renewal nobody noticed, the insurance
 certificate that was due in 14 Business Days, the 120-day price-increase window: these are
 operational failures, not drafting failures, and they are avoidable with a spreadsheet
 that someone keeps. This is the spreadsheet, as data, with the arithmetic done.
@@ -45,15 +46,62 @@ that someone keeps. This is the spreadsheet, as data, with the arithmetic done.
 | `obligreg validate` | Duplicate ids, obligors that are not parties, dangling anchors, missing quotations, malformed triggers. |
 | `obligreg resolve` | Every deadline with a line-by-line trace. Relative triggers chain (`data-deletion` anchored on `data-return` anchored on `event:termination`). Business days via [sg-deadline](https://github.com/kevanwee/sg-deadline). |
 | `obligreg render` | Markdown register, dated items first, undated event-triggered items listed separately, notice clause summarised. |
-| `obligreg ics` | RFC 5545 calendar: one all-day event per obligation, `RRULE` for recurrences, `VALARM` at `lead_days`. Stable UIDs so re-importing updates rather than duplicates. |
+| `obligreg ics` | RFC 5545 calendar: one all-day event per obligation, `RRULE` for recurrences, `VALARM` at `lead_days`. Stable UIDs identify updates; import behaviour depends on the calendar client. |
 | `obligreg upcoming` | What is due in the next N days from a date. |
 | `SKILL.md` | The extraction discipline: sweep every clause, quote the operative words, classify the trigger, extract the notice clause as deemed-receipt parameters. |
+
+## Amendment impact review
+
+An amendment changes expiry and the notice period. The review traces the new notice
+deadline, its dependent escalation and the longer recurring-report schedule. A shared
+Business Day definition can affect obligations that the amendment never names directly.
+
+```mermaid
+flowchart LR
+    A[Current register + operative agreement pack] --> C[Evidence-linked amendment proposal]
+    B[Amendment + execution and effect evidence] --> C
+    C --> D[Validate quotations and section coverage]
+    D --> E[Trace direct and dependent date impacts]
+    E --> F{Responsible lawyer review}
+    F -->|Questions / reject| G[Decision receipt; preserve current register]
+    F -->|Approve exact package| H[New register + calendar actions + receipt]
+```
+
+![Portable amendment review](docs/images/amendment-review.png)
+
+Start with the complete [step-by-step method](references/amendment-review.md). Three
+[synthetic scenarios](examples/amendments/) cover renewal, a Business Day definition
+and an ambiguous amendment that blocks approval. The same engine supports amendment
+review inside the private Legal Engineering Workspace Studio.
+
+```bash
+obligreg amend build --base examples/amendments/renewal/base.yaml --plan examples/amendments/renewal/proposal.json --out out/review-v2
+# Open out/review-v2/review.html, review each change and impact, then download a decision.
+obligreg amend apply --base examples/amendments/renewal/base.yaml --plan examples/amendments/renewal/proposal.json --review out/review-v2 --decision amendment-decision.json --out out/approved-v2
+```
+
+| Scenario | Verified mechanical result |
+| --- | --- |
+| Renewal and notice | Notice: 1 Apr to 1 Nov 2027; escalation: 18 Mar to 18 Oct; monthly reports: 6 to 12 |
+| Business Day definition | Insurance: 7 to 8 Jan 2027; dependent review: 10 to 11 Jan |
+| Ambiguous amendment | Approval blocked; rejection publishes no replacement register or calendar |
+
+Approval requires every change accepted, every affected obligation acknowledged and
+no unresolved blocker. Changed inputs or presentation require renewed review. The
+original register is preserved. `calendar-changes.json` gives explicit create/update/
+cancel actions; no external calendar is modified. Actor names record attestations,
+not authenticated authority. Quotations prove provenance, not legal adequacy.
+
+Schema 1.1 adds an optional Business Day rule and loads earlier unversioned registers.
+The original schema is preserved as `schema/register.v1.schema.json`. No Python clause
+parser or automatic legal interpretation is introduced.
 
 ## Install
 
 ```bash
 pip install -e ".[dev]"
-pip install -e ".[sg]"       # adds sg-deadline for business-day arithmetic
+pip install "sg-deadline @ git+https://github.com/kevanwee/sg-deadline.git@1ab1994dc79980d43ebdea8bd635f7776e5ed79e"
+pip install -e ".[sg]"       # uses that reviewed 0.2+ engine
 ```
 
 As a Claude skill: clone into `.claude/skills/obligation-extraction/`.
