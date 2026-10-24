@@ -1,2 +1,7 @@
+* text=auto eol=lf
+*.png binary
+*.pdf binary
+*.docx binary
+
 # Source hashes and character offsets must survive Windows checkouts unchanged.
 examples/amendments/**/*.txt -text
