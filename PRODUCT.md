@@ -17,7 +17,8 @@ a decision that controls publication of a new version.
 The existing Python CLI reads local YAML registers. The skill interprets supplied
 documents; Python validates explicit proposals and performs calendar arithmetic.
 The amendment report is self-contained HTML with no network, server or account.
-Local-report-first is an implementation assumption pending user feedback.
+The user prefers review inside Studio. This repository provides the shared engine and
+portable export; the private workspace provides the integrated interface.
 
 ## Constraints
 

@@ -29,13 +29,15 @@ notification sending, calendar-account mutation or database is required.
    Propagate expiry, event, effective-date, recurrence and Business Day dependencies.
 5. Frozen before/after date traces, recurrence differences, unresolved items and blockers.
    Optional sg-deadline preparation remains in the CLI, with stored calendar evidence.
-6. Self-contained local review HTML: original/proposed wording, sources, impacts, filters,
+6. Self-contained local review HTML: original/proposed wording, sources and impacts,
    approval/refusal form and a downloadable decision bound to the package digest.
 7. Approval applies the reviewed package to a fresh output directory only. Revalidate
    source/base hashes, proposal, calculations and decision; stage output transactionally.
    Preserve obligation identifiers and existing calendar UID conventions. Removed events
    get explicit cancellation instructions in the changeset; do not claim calendar sync.
-8. Three documented synthetic journeys, regression tests, CLI/SOP/skill updates and CI.
+8. Studio integration with the pinned engine, local uploads, practice scenarios, guarded
+   decisions and downloadable results. The portable page remains an export.
+9. Three documented synthetic journeys, regression tests, CLI/SOP/skill updates and CI.
 
 ## Acceptance checks
 

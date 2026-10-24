@@ -182,3 +182,81 @@ def test_removal_requires_repairing_dependents(tmp_path):
     raw["changes"] = [{**raw["changes"][1], "kind": "remove", "after": None}]
     with pytest.raises(ValueError, match="anchor"):
         candidate(base, AmendmentPlan.model_validate(raw))
+
+
+def test_calendar_snapshot_replay_is_independent_of_cache(tmp_path):
+    base_path, plan_path = create(tmp_path, "business-day")
+    # The explicit contract counts public holidays and needs no jurisdiction cache.
+    snapshot = {"jurisdiction": "SG", "weekend": [5, 6], "years": {}}
+    package = build(base_path, plan_path, tmp_path / "review", calendar=snapshot)
+    snapshot["weekend"] = [4, 5, 6]  # a later caller/cache edit cannot change saved results
+    path = decision(tmp_path, package)
+    apply(tmp_path / "review", base_path, plan_path, path, tmp_path / "v2")
+    result = json.loads((tmp_path / "v2/resolution.json").read_bytes())
+    assert (
+        next(r for r in result["impacts"] if r["id"] == "insurance")["after_dates"]["deadline"]
+        == "2027-01-08"
+    )
+
+
+def test_added_and_removed_obligations_have_calendar_actions(tmp_path):
+    bp, pp = create(tmp_path)
+    base, plan, docs, _ = inputs(bp, pp)
+    raw = plan.model_dump(mode="json")
+    old = base.by_id("report").model_dump(mode="json")
+    extra = dict(raw["changes"][1]["after"], id="additional-notice")
+    raw["changes"] = [
+        dict(raw["changes"][0], kind="remove", target="report", before=old, after=None),
+        dict(raw["changes"][1], kind="add", target="additional-notice", before=None, after=extra),
+    ]
+    analysis = analyze(base, AmendmentPlan.model_validate(raw), docs)
+    rows = {r["id"]: r for r in analysis["impacts"]}
+    assert rows["report"]["action"] == "cancel"
+    assert rows["report"]["uid"] == "service-agreement-report@oblig-register"
+    assert rows["additional-notice"]["action"] == "create"
+
+
+def test_source_content_is_escaped_in_report(tmp_path):
+    bp, pp = create(tmp_path)
+    raw = json.loads(pp.read_bytes())
+    raw["title"] = "<script>globalThis.hacked=true</script>"
+    pp.write_text(json.dumps(raw), encoding="utf-8")
+    build(bp, pp, tmp_path / "review")
+    text = (tmp_path / "review/review.html").read_text(encoding="utf-8")
+    assert "<script>globalThis.hacked" not in text
+    assert "&lt;script&gt;globalThis.hacked" in text
+
+
+def test_cli_full_journey(tmp_path):
+    from obligreg.cli import main
+
+    bp, pp = create(tmp_path)
+    folder = tmp_path / "review"
+    args = ["--base", str(bp), "--plan", str(pp)]
+    assert main(["amend", "build", *args, "--out", str(folder)]) == 0
+    package = json.loads((folder / "review.json").read_bytes())
+    d = decision(tmp_path, package)
+    assert (
+        main(
+            [
+                "amend",
+                "apply",
+                *args,
+                "--review",
+                str(folder),
+                "--decision",
+                str(d),
+                "--out",
+                str(tmp_path / "v2"),
+            ]
+        )
+        == 0
+    )
+    assert (tmp_path / "v2/register.yaml").is_file()
+
+
+def test_future_effect_blocks_approval(tmp_path):
+    bp, pp = create(tmp_path)
+    base, plan, docs, _ = inputs(bp, pp)
+    plan.effective_on = date(2027, 2, 1)
+    assert any("effective" in b for b in analyze(base, plan, docs)["blockers"])

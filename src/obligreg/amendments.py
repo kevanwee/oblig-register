@@ -287,6 +287,10 @@ def analyze(
         impacted = bool(reasons[oid])
         if impacted and new and not new.resolved and not _waiting(after, oid):
             blockers.append(f"{oid}: {new.unresolved_reason or 'no calculable occurrence'}")
+        if (impacted and new and new.obligation.trigger.relative
+                and new.obligation.trigger.relative.business_days
+                and after.business_day_rule is None):
+            blockers.append(f"{oid}: supply an explicit, source-backed Business Day definition")
         if impacted and after.business_day_rule and after.business_day_rule.kind == "unresolved":
             rel = after.by_id(oid).trigger.relative if new else None
             if rel and rel.business_days:
