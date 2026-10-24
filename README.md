@@ -82,8 +82,8 @@ obligreg amend apply --base examples/amendments/renewal/base.yaml --plan example
 
 | Scenario | Verified mechanical result |
 | --- | --- |
-| Renewal and notice | Notice: 1 Apr ? 1 Nov 2027; escalation: 18 Mar ? 18 Oct; monthly reports: 6 ? 12 |
-| Business Day definition | Insurance: 7 ? 8 Jan 2027; dependent review: 10 ? 11 Jan |
+| Renewal and notice | Notice: 1 Apr to 1 Nov 2027; escalation: 18 Mar to 18 Oct; monthly reports: 6 to 12 |
+| Business Day definition | Insurance: 7 to 8 Jan 2027; dependent review: 10 to 11 Jan |
 | Ambiguous amendment | Approval blocked; rejection publishes no replacement register or calendar |
 
 Approval requires every change accepted, every affected obligation acknowledged and
