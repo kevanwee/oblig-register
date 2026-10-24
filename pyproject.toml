@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oblig-register"
-version = "0.1.0"
+version = "0.2.0"
 description = "Turn an executed contract into a dated obligations register: a validated schema, deadline resolution, an .ics calendar export, and a Claude skill for the extraction step."
 readme = "README.md"
 license = { text = "MIT" }
@@ -12,7 +12,7 @@ requires-python = ">=3.11"
 dependencies = ["pydantic>=2.5", "pyyaml>=6.0", "python-dateutil>=2.8"]
 
 [project.optional-dependencies]
-sg = ["sg-deadline>=0.1"]
+sg = ["sg-deadline>=0.2"]
 dev = ["pytest>=8", "ruff>=0.5"]
 
 [project.scripts]
@@ -20,6 +20,9 @@ obligreg = "obligreg.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+obligreg = ["assets/*.html", "assets/*.js"]
 
 [tool.ruff]
 line-length = 100
