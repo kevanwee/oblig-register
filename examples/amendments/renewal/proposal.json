@@ -1,0 +1,167 @@
+{
+  "schema_version": "1",
+  "title": "Service agreement — renewal amendment",
+  "as_of": "2027-01-06",
+  "effective_on": "2027-01-06",
+  "execution_status": "confirmed",
+  "effect_basis": "Synthetic scenario assumes execution and effectiveness on 6 January 2027.",
+  "sources": [
+    {
+      "id": "agreement",
+      "role": "agreement",
+      "path": "agreement.txt",
+      "sha256": "5752e9b9e5dba56565a9e4708505f08e3acbfda79d1798f73623fdb907bfbdc5"
+    },
+    {
+      "id": "amendment",
+      "role": "amendment",
+      "path": "amendment.txt",
+      "sha256": "875cb9d683c5d9307ea3de61d3bc7c568fe3e171aa0d31014784e7888654c845"
+    }
+  ],
+  "baseline": {
+    "renewal-notice": {
+      "document": "agreement",
+      "start": 0,
+      "end": 64,
+      "quote": "Customer must give non-renewal notice ninety days before expiry.",
+      "locator": "agreement paragraph at character 0"
+    },
+    "escalation": {
+      "document": "agreement",
+      "start": 65,
+      "end": 151,
+      "quote": "Supplier must send an escalation fourteen days before the non-renewal notice deadline.",
+      "locator": "agreement paragraph at character 65"
+    },
+    "report": {
+      "document": "agreement",
+      "start": 152,
+      "end": 228,
+      "quote": "Supplier must provide a report monthly from the effective date until expiry.",
+      "locator": "agreement paragraph at character 152"
+    }
+  },
+  "baseline_notice": null,
+  "baseline_business_day_rule": null,
+  "sections": [
+    {
+      "id": "section-0",
+      "evidence": {
+        "document": "amendment",
+        "start": 0,
+        "end": 47,
+        "quote": "The expiry date is changed to 31 December 2027.",
+        "locator": "amendment paragraph at character 0"
+      },
+      "disposition": "change",
+      "changes": [
+        "extend-term"
+      ],
+      "reason": "This paragraph supplies the proposed operative change."
+    },
+    {
+      "id": "section-1",
+      "evidence": {
+        "document": "amendment",
+        "start": 48,
+        "end": 111,
+        "quote": "Customer must give non-renewal notice sixty days before expiry.",
+        "locator": "amendment paragraph at character 48"
+      },
+      "disposition": "change",
+      "changes": [
+        "shorten-notice"
+      ],
+      "reason": "This paragraph supplies the proposed operative change."
+    }
+  ],
+  "changes": [
+    {
+      "id": "extend-term",
+      "kind": "field",
+      "target": "expiry",
+      "before": "2027-06-30",
+      "after": "2027-12-31",
+      "rationale": "The amendment expressly replaces the expiry date.",
+      "evidence": [
+        {
+          "document": "amendment",
+          "start": 0,
+          "end": 47,
+          "quote": "The expiry date is changed to 31 December 2027.",
+          "locator": "amendment paragraph at character 0"
+        }
+      ]
+    },
+    {
+      "id": "shorten-notice",
+      "kind": "replace",
+      "target": "renewal-notice",
+      "before": {
+        "id": "renewal-notice",
+        "obligor": "Customer",
+        "obligee": "Supplier",
+        "category": "renewal",
+        "description": "Customer must give non-renewal notice ninety days before expiry.",
+        "clause_ref": "renewal-notice",
+        "verbatim": "Customer must give non-renewal notice ninety days before expiry.",
+        "trigger": {
+          "kind": "relative",
+          "date": null,
+          "relative": {
+            "anchor": "expiry",
+            "days": 90,
+            "business_days": 0,
+            "months": 0,
+            "direction": "before"
+          },
+          "event": null,
+          "recurrence": null
+        },
+        "condition": null,
+        "consequence": null,
+        "lead_days": 14,
+        "notes": []
+      },
+      "after": {
+        "id": "renewal-notice",
+        "obligor": "Customer",
+        "obligee": "Supplier",
+        "category": "renewal",
+        "description": "Give non-renewal notice sixty days before expiry",
+        "clause_ref": "renewal-notice",
+        "verbatim": "Customer must give non-renewal notice sixty days before expiry.",
+        "trigger": {
+          "kind": "relative",
+          "date": null,
+          "relative": {
+            "anchor": "expiry",
+            "days": 60,
+            "business_days": 0,
+            "months": 0,
+            "direction": "before"
+          },
+          "event": null,
+          "recurrence": null
+        },
+        "condition": null,
+        "consequence": null,
+        "lead_days": 14,
+        "notes": []
+      },
+      "rationale": "The operative replacement changes ninety to sixty days.",
+      "evidence": [
+        {
+          "document": "amendment",
+          "start": 48,
+          "end": 111,
+          "quote": "Customer must give non-renewal notice sixty days before expiry.",
+          "locator": "amendment paragraph at character 48"
+        }
+      ]
+    }
+  ],
+  "questions": [],
+  "synthetic": true
+}

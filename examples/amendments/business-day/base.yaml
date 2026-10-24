@@ -1,0 +1,69 @@
+schema_version: '1.1'
+contract: Service agreement
+parties:
+- Customer
+- Supplier
+effective_date: '2027-01-05'
+expiry: '2027-06-30'
+governing_law: null
+events: {}
+notice_clause: null
+business_day_rule:
+  kind: explicit
+  jurisdiction: null
+  weekend_days:
+  - 5
+  - 6
+  excluded_dates: []
+  clause_ref: definition
+  verbatim: Business Day means Monday to Friday, including public holidays.
+  notes: []
+obligations:
+- id: insurance
+  obligor: Supplier
+  obligee: Customer
+  category: insurance
+  description: Supplier must provide insurance evidence two Business Days after the
+    effective date.
+  clause_ref: insurance
+  verbatim: Supplier must provide insurance evidence two Business Days after the effective
+    date.
+  trigger:
+    kind: relative
+    date: null
+    relative:
+      anchor: effective_date
+      days: 0
+      business_days: 2
+      months: 0
+      direction: after
+    event: null
+    recurrence: null
+  condition: null
+  consequence: null
+  lead_days: 14
+  notes: []
+- id: followup
+  obligor: Supplier
+  obligee: Customer
+  category: compliance
+  description: Customer must review insurance evidence three days after its delivery
+    deadline.
+  clause_ref: followup
+  verbatim: Customer must review insurance evidence three days after its delivery
+    deadline.
+  trigger:
+    kind: relative
+    date: null
+    relative:
+      anchor: insurance
+      days: 3
+      business_days: 0
+      months: 0
+      direction: after
+    event: null
+    recurrence: null
+  condition: null
+  consequence: null
+  lead_days: 14
+  notes: []
